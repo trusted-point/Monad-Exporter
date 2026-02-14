@@ -64,36 +64,41 @@ def main():
     next_balance = now
     next_staking = now
 
-    while True:
-        now = time.time()
+    try:
+        while True:
+            now = time.time()
 
-        if now >= next_price:
-            try:
-                update_mon_price(api_key)
-                logger.info(f"Updated $MON price")
-            except Exception as e:
-                logger.exception(f"Price update failed: {e}")
-            next_price = now + args.token_price_update_interval
+            if now >= next_price:
+                try:
+                    update_mon_price(api_key)
+                    logger.info("Updated $MON price")
+                except Exception:
+                    logger.exception("Price update failed")
+                next_price = now + args.token_price_update_interval
 
-        if now >= next_balance:
-            try:
+            if now >= next_balance:
                 for wallet in wallets:
-                    update_wallet_balances(w3, wallet)
-                    logger.info(f"Updated balance info for {wallet}")
-            except Exception as e:
-                logger.exception(f"Balance update failed: {e}")
-            next_balance = now + args.wallet_balance_update_interval
+                    try:
+                        update_wallet_balances(w3, wallet)
+                        logger.info(f"Updated balance for {wallet.get('tag','')} {wallet.get('address','')}")
+                    except Exception:
+                        logger.exception(f"Balance update failed for {wallet.get('tag','')} {wallet.get('address','')}")
+                next_balance = now + args.wallet_balance_update_interval
 
-        if now >= next_staking:
-            try:
+            if now >= next_staking:
                 for wallet in wallets:
-                    update_wallet_staking(w3, staking_contract, validator_id, wallet)
-                    logger.info(f"Updated staking info for {wallet}")
-            except Exception as e:
-                logger.exception(f"Staking update failed: {e}")
-            next_staking = now + args.staking_update_interval
+                    try:
+                        update_wallet_staking(w3, staking_contract, validator_id, wallet)
+                        logger.info(f"Updated staking for {wallet.get('tag','')} {wallet.get('address','')}")
+                    except Exception:
+                        logger.exception(f"Staking update failed for {wallet.get('tag','')} {wallet.get('address','')}")
+                next_staking = now + args.staking_update_interval
 
-        time.sleep(1)
+            time.sleep(1)
+
+    except KeyboardInterrupt:
+        logger.info("Shutting down gracefully.")
+        return
 
 if __name__ == "__main__":
     main()
