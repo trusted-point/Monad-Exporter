@@ -1,0 +1,10 @@
+staking_contract: "0x0000000000000000000000000000000000001000"
+validator_id: 100
+
+wallets:
+  - address: "0x"
+    tag: "Wallet-1"
+  - address: "0x"
+    tag: "Wallet-2"
+  - address: "0x"
+    tag: "Wallet-3"
